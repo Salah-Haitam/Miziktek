@@ -1,0 +1,235 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Dashboard | Mziktak{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">Admin Dashboard</h1>
+    
+    <!-- Stats Cards -->
+    <div class="row row-cols-1 row-cols-md-4 mb-4 g-4">
+        <div class="col">
+            <div class="card text-center h-100 bg-primary text-white">
+                <div class="card-body">
+                    <h1 class="display-4 mb-0">{{ all_users.count }}</h1>
+                    <p>Total Users</p>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card text-center h-100 bg-success text-white">
+                <div class="card-body">
+                    <h1 class="display-4 mb-0">{{ all_users.filter.user_type.artist.count }}</h1>
+                    <p>Artists</p>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card text-center h-100 bg-info text-white">
+                <div class="card-body">
+                    <h1 class="display-4 mb-0">{{ all_music.count }}</h1>
+                    <p>Music Tracks</p>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card text-center h-100 bg-warning text-white">
+                <div class="card-body">
+                    <h1 class="display-4 mb-0">{{ all_playlists.count }}</h1>
+                    <p>Playlists</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Navigation Tabs -->
+    <ul class="nav nav-tabs mb-4" id="adminTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="users-tab" data-bs-toggle="tab" data-bs-target="#users" type="button" role="tab" aria-controls="users" aria-selected="true">
+                Users
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="music-tab" data-bs-toggle="tab" data-bs-target="#music" type="button" role="tab" aria-controls="music" aria-selected="false">
+                Music
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="playlists-tab" data-bs-toggle="tab" data-bs-target="#playlists" type="button" role="tab" aria-controls="playlists" aria-selected="false">
+                Playlists
+            </button>
+        </li>
+    </ul>
+    
+    <!-- Tab Content -->
+    <div class="tab-content" id="adminTabContent">
+        <!-- Users Tab -->
+        <div class="tab-pane fade show active" id="users" role="tabpanel" aria-labelledby="users-tab">
+            <div class="card">
+                <div class="card-header bg-white">
+                    <h4 class="mb-0">All Users</h4>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Username</th>
+                                    <th scope="col">Email</th>
+                                    <th scope="col">Type</th>
+                                    <th scope="col">Date Joined</th>
+                                    <th scope="col">Status</th>
+                                    <th scope="col">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for user in all_users %}
+                                <tr>
+                                    <td>{{ user.username }}</td>
+                                    <td>{{ user.email }}</td>
+                                    <td>
+                                        {% if user.user_type == 'artist' %}
+                                        <span class="badge bg-success">Artist</span>
+                                        {% elif user.user_type == 'admin' %}
+                                        <span class="badge bg-danger">Admin</span>
+                                        {% else %}
+                                        <span class="badge bg-secondary">Regular</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ user.date_joined|date:"M d, Y" }}</td>
+                                    <td>
+                                        {% if user.is_active %}
+                                        <span class="badge bg-success">Active</span>
+                                        {% else %}
+                                        <span class="badge bg-danger">Inactive</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <button type="button" class="btn btn-outline-primary">View</button>
+                                            <button type="button" class="btn btn-outline-secondary">Edit</button>
+                                            {% if not user.is_superuser %}
+                                            <button type="button" class="btn btn-outline-danger">Delete</button>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Music Tab -->
+        <div class="tab-pane fade" id="music" role="tabpanel" aria-labelledby="music-tab">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center bg-white">
+                    <h4 class="mb-0">All Music</h4>
+                    <a href="{% url 'upload_music' %}" class="btn btn-sm btn-primary">Upload New</a>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th scope="col" style="width: 50px;">#</th>
+                                    <th scope="col">Title</th>
+                                    <th scope="col">Artist</th>
+                                    <th scope="col">Genre</th>
+                                    <th scope="col">Duration</th>
+                                    <th scope="col">Released</th>
+                                    <th scope="col">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for music in all_music %}
+                                <tr>
+                                    <th scope="row">{{ forloop.counter }}</th>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <img src="{{ music.cover_image.url }}" alt="{{ music.title }}" class="me-2 rounded" style="width: 40px; height: 40px; object-fit: cover;">
+                                            <span>{{ music.title }}</span>
+                                        </div>
+                                    </td>
+                                    <td>{{ music.artist.full_name }}</td>
+                                    <td>{{ music.get_genre_display }}</td>
+                                    <td>{{ music.duration }}</td>
+                                    <td>{{ music.release_date }}</td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="{% url 'music_detail' music.id %}" class="btn btn-outline-primary">
+                                                <i class="fas fa-play"></i>
+                                            </a>
+                                            <a href="{% url 'edit_music' music.id %}" class="btn btn-outline-secondary">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a href="{% url 'delete_music' music.id %}" class="btn btn-outline-danger">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Playlists Tab -->
+        <div class="tab-pane fade" id="playlists" role="tabpanel" aria-labelledby="playlists-tab">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center bg-white">
+                    <h4 class="mb-0">All Playlists</h4>
+                    <a href="{% url 'create_playlist' %}" class="btn btn-sm btn-primary">Create New</a>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th scope="col" style="width: 50px;">#</th>
+                                    <th scope="col">Name</th>
+                                    <th scope="col">Creator</th>
+                                    <th scope="col">Tracks</th>
+                                    <th scope="col">Duration</th>
+                                    <th scope="col">Created</th>
+                                    <th scope="col">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for playlist in all_playlists %}
+                                <tr>
+                                    <th scope="row">{{ forloop.counter }}</th>
+                                    <td>{{ playlist.name }}</td>
+                                    <td>{{ playlist.creator.username }}</td>
+                                    <td>{{ playlist.music.count }}</td>
+                                    <td>{{ playlist.total_duration }}</td>
+                                    <td>{{ playlist.created_at|date:"M d, Y" }}</td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="{% url 'playlist_detail' playlist.id %}" class="btn btn-outline-primary">
+                                                <i class="fas fa-play"></i>
+                                            </a>
+                                            <a href="{% url 'edit_playlist' playlist.id %}" class="btn btn-outline-secondary">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a href="{% url 'delete_playlist' playlist.id %}" class="btn btn-outline-danger">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

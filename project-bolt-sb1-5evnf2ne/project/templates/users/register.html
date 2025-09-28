@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Register | Mziktak{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-8 col-lg-6 mx-auto">
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="card-title text-center mb-4">Create Your Account</h2>
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        {{ form|crispy }}
+                        
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn btn-primary">Register</button>
+                        </div>
+                    </form>
+                    
+                    <div class="border-top pt-3 mt-4 text-center">
+                        <small class="text-muted">
+                            Already have an account? <a href="{% url 'login' %}" class="text-primary">Log In</a>
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

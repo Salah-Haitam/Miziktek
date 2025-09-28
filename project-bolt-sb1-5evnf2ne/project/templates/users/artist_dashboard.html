@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+
+{% block title %}Artist Dashboard | Mziktak{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Artist Dashboard</h1>
+        <div>
+            <a href="{% url 'upload_music' %}" class="btn btn-primary me-2">
+                <i class="fas fa-upload me-1"></i> Upload Music
+            </a>
+            <a href="{% url 'create_playlist' %}" class="btn btn-outline-primary">
+                <i class="fas fa-plus me-1"></i> Create Playlist
+            </a>
+        </div>
+    </div>
+    
+    <!-- Stats Cards -->
+    <div class="row row-cols-1 row-cols-md-3 mb-4 g-4">
+        <div class="col">
+            <div class="card text-center h-100">
+                <div class="card-body">
+                    <h1 class="display-4 mb-0">{{ music_list.count }}</h1>
+                    <p class="text-muted">Tracks</p>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card text-center h-100">
+                <div class="card-body">
+                    <h1 class="display-4 mb-0">{{ playlists.count }}</h1>
+                    <p class="text-muted">Playlists</p>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card text-center h-100">
+                <div class="card-body">
+                    <h1 class="display-4 mb-0">{{ user.artist_profile.full_name|default:user.username }}</h1>
+                    <p class="text-muted">Artist Name</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- My Music Section -->
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center bg-white">
+            <h4 class="mb-0">My Music</h4>
+            <a href="{% url 'upload_music' %}" class="btn btn-sm btn-primary">Upload New</a>
+        </div>
+        <div class="card-body">
+            {% if music_list %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th scope="col" style="width: 50px;">#</th>
+                            <th scope="col">Title</th>
+                            <th scope="col">Genre</th>
+                            <th scope="col">Duration</th>
+                            <th scope="col">Released</th>
+                            <th scope="col">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for music in music_list %}
+                        <tr>
+                            <th scope="row">{{ forloop.counter }}</th>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <img src="{{ music.cover_image.url }}" alt="{{ music.title }}" class="me-2 rounded" style="width: 40px; height: 40px; object-fit: cover;">
+                                    <span>{{ music.title }}</span>
+                                </div>
+                            </td>
+                            <td>{{ music.get_genre_display }}</td>
+                            <td>{{ music.duration }}</td>
+                            <td>{{ music.release_date }}</td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{% url 'music_detail' music.id %}" class="btn btn-outline-primary">
+                                        <i class="fas fa-play"></i>
+                                    </a>
+                                    <a href="{% url 'edit_music' music.id %}" class="btn btn-outline-secondary">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{% url 'delete_music' music.id %}" class="btn btn-outline-danger">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="alert alert-info">
+                You haven't uploaded any music yet. <a href="{% url 'upload_music' %}">Upload your first track!</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- My Playlists Section -->
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center bg-white">
+            <h4 class="mb-0">My Playlists</h4>
+            <a href="{% url 'create_playlist' %}" class="btn btn-sm btn-primary">Create New</a>
+        </div>
+        <div class="card-body">
+            {% if playlists %}
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                {% for playlist in playlists %}
+                <div class="col">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ playlist.name }}</h5>
+                            <p class="card-text">
+                                <small class="text-muted">
+                                    <i class="fas fa-music me-1"></i> {{ playlist.music.count }} tracks
+                                    <span class="mx-2">·</span>
+                                    <i class="fas fa-clock me-1"></i> {{ playlist.total_duration }}
+                                </small>
+                            </p>
+                        </div>
+                        <div class="card-footer bg-white border-0">
+                            <div class="btn-group w-100">
+                                <a href="{% url 'playlist_detail' playlist.id %}" class="btn btn-primary">
+                                    <i class="fas fa-play me-1"></i> Play
+                                </a>
+                                <a href="{% url 'edit_playlist' playlist.id %}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{% url 'delete_playlist' playlist.id %}" class="btn btn-outline-danger">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="alert alert-info">
+                You haven't created any playlists yet. <a href="{% url 'create_playlist' %}">Create your first playlist!</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

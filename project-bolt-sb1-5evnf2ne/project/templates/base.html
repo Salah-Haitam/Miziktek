@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Mziktak - Music Management Platform{% endblock %}</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Plyr.js CSS -->
+    <link rel="stylesheet" href="https://cdn.plyr.io/3.7.2/plyr.css">
+    <!-- Custom CSS -->
+    <style>
+        :root {
+            --primary: #6200EA;
+            --primary-light: #9d46ff;
+            --primary-dark: #0a00b6;
+            --accent: #FFC107;
+            --text-on-primary: #ffffff;
+            --text-primary: #212121;
+            --text-secondary: #757575;
+            --success: #4CAF50;
+            --warning: #FF9800;
+            --error: #F44336;
+            --background: #f5f5f7;
+        }
+        
+        body {
+            font-family: 'Source Sans Pro', sans-serif;
+            background-color: var(--background);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        main {
+            flex: 1;
+        }
+        
+        .navbar {
+            background-color: var(--primary);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            color: var(--text-on-primary) !important;
+        }
+        
+        .navbar-dark .navbar-nav .nav-link {
+            color: rgba(255,255,255,0.9);
+            transition: all 0.3s ease;
+        }
+        
+        .navbar-dark .navbar-nav .nav-link:hover {
+            color: var(--accent);
+            transform: translateY(-2px);
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            border-color: var(--primary);
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            border-color: var(--primary-dark);
+        }
+        
+        .btn-accent {
+            background-color: var(--accent);
+            border-color: var(--accent);
+            color: var(--text-primary);
+        }
+        
+        .btn-accent:hover {
+            background-color: #e0a800;
+            border-color: #e0a800;
+            color: var(--text-primary);
+        }
+        
+        .card {
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 20px rgba(0,0,0,0.15);
+        }
+        
+        .music-card {
+            position: relative;
+            height: 100%;
+        }
+        
+        .music-card img {
+            height: 200px;
+            object-fit: cover;
+        }
+        
+        .music-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        
+        .music-artist {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        .plyr {
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        footer {
+            background-color: var(--primary);
+            color: var(--text-on-primary);
+            padding: 2rem 0;
+            margin-top: 3rem;
+        }
+        
+        .alert {
+            border-radius: 8px;
+        }
+        
+        /* Animation classes */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .slide-up {
+            animation: slideUp 0.5s ease-out;
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .music-card img {
+                height: 150px;
+            }
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    {% include 'includes/navigation.html' %}
+
+    <!-- Messages -->
+    {% if messages %}
+    <div class="container mt-3">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Main Content -->
+    <main class="py-4">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <h5>Mziktak</h5>
+                    <p>Your favorite music management platform.</p>
+                </div>
+                <div class="col-md-4">
+                    <h5>Quick Links</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="{% url 'home' %}" class="text-light">Home</a></li>
+                        <li><a href="{% url 'music_list' %}" class="text-light">Music</a></li>
+                        <li><a href="{% url 'playlist_list' %}" class="text-light">Playlists</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <h5>Connect</h5>
+                    <div class="d-flex">
+                        <a href="#" class="text-light me-3"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="text-light me-3"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-light me-3"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="text-light"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.plyr.io/3.7.2/plyr.js"></script>
+    <script>
+        // Animate elements when they enter viewport
+        function animateOnScroll() {
+            const elements = document.querySelectorAll('.card, .music-card, .btn, .nav-link');
+            elements.forEach(element => {
+                const position = element.getBoundingClientRect();
+                if(position.top < window.innerHeight && position.bottom > 0) {
+                    element.classList.add('slide-up');
+                }
+            });
+        }
+
+        window.addEventListener('scroll', animateOnScroll);
+        // Initial animation call
+        animateOnScroll();
+
+        // Back button functionality
+        function goBack() {
+            window.history.back();
+        }
+
+        // Theme toggle functionality
+        function initTheme() {
+            const themeToggle = document.getElementById('themeToggle');
+            const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+            
+            // Check for saved theme preference or use the browser preference
+            const currentTheme = localStorage.getItem('theme') || 
+                                (prefersDarkScheme.matches ? 'dark' : 'light');
+            
+            // Set the initial theme
+            if (currentTheme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            } else {
+                document.documentElement.setAttribute('data-theme', 'light');
+            }
+            
+            // Theme toggle event
+            themeToggle.addEventListener('click', function() {
+                let theme = 'light';
+                
+                // If the current theme is light, switch to dark, and vice versa
+                if (document.documentElement.getAttribute('data-theme') === 'light') {
+                    theme = 'dark';
+                }
+                
+                // Set the theme and save preference
+                document.documentElement.setAttribute('data-theme', theme);
+                localStorage.setItem('theme', theme);
+            });
+        }
+    </script>
+    {% block extra_js %}
+        {% include 'includes/chatbot.html' %}
+        <!-- Scripts supplémentaires -->
+    {% endblock %}
+</body>
+</html>

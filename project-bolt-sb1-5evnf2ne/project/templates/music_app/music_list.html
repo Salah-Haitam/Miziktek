@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+
+{% block title %}Music Library | Mziktak{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Music Library</h1>
+        {% if user.is_artist or user.is_admin %}
+        <a href="{% url 'upload_music' %}" class="btn btn-primary">
+            <i class="fas fa-upload me-2"></i>Upload Music
+        </a>
+        {% endif %}
+    </div>
+
+    <!-- Search and Filter -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <input type="text" name="search" class="form-control" placeholder="Search by title or artist..." value="{{ search_query }}">
+                        <button class="btn btn-primary" type="submit">
+                            <i class="fas fa-search"></i> Search
+                        </button>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <select name="genre" class="form-select" onchange="this.form.submit()">
+                        <option value="">All Genres</option>
+                        {% for genre_code, genre_name in genres.items %}
+                            <option value="{{ genre_code }}" {% if current_genre == genre_code %}selected{% endif %}>
+                                {{ genre_name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <a href="{% url 'music_list' %}" class="btn btn-outline-secondary w-100">
+                        <i class="fas fa-redo"></i> Reset
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Music Grid -->
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        {% for music in music_list %}
+        <div class="col">
+            <div class="card h-100 music-card">
+                <img src="{{ music.cover_image.url }}" class="card-img-top" alt="{{ music.title }}">
+                <div class="card-body">
+                    <h5 class="music-title">{{ music.title }}</h5>
+                    <p class="music-artist">{{ music.artist.full_name }}</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="badge bg-secondary">{{ music.get_genre_display }}</span>
+                        <small class="text-muted">{{ music.duration }}</small>
+                    </div>
+                </div>
+                <div class="card-footer bg-white border-0 d-flex justify-content-between">
+                    <a href="{% url 'music_detail' music.id %}" class="btn btn-sm btn-primary">
+                        <i class="fas fa-play me-1"></i> Listen
+                    </a>
+                    {% if user.is_authenticated and user.is_artist and music.artist.user == user or user.is_admin %}
+                    <div class="btn-group">
+                        <a href="{% url 'edit_music' music.id %}" class="btn btn-sm btn-outline-secondary">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <a href="{% url 'delete_music' music.id %}" class="btn btn-sm btn-outline-danger">
+                            <i class="fas fa-trash"></i>
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info">
+                {% if search_query or current_genre %}
+                    No music found matching your search criteria. Try adjusting your filters.
+                {% else %}
+                    No music available yet. Check back soon!
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

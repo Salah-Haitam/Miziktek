@@ -1,0 +1,232 @@
+{% extends 'base.html' %}
+
+{% block title %}Statistics | {{ music.title }} | Mziktak{% endblock %}
+
+{% block extra_css %}
+<style>
+    .stats-card {
+        transition: all 0.3s ease;
+        transform: translateY(0);
+        opacity: 0;
+    }
+
+    .stats-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .stats-card.animate {
+        opacity: 1;
+    }
+
+    .stats-value {
+        transition: all 0.5s ease;
+    }
+
+    .stats-icon {
+        font-size: 1.5rem;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        margin-bottom: 0.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .stats-card:hover .stats-icon {
+        transform: scale(1.1);
+    }
+
+    .stats-plays .stats-icon { background-color: rgba(98, 0, 234, 0.1); color: var(--primary); }
+    .stats-listeners .stats-icon { background-color: rgba(76, 175, 80, 0.1); color: var(--success); }
+    .stats-rating .stats-icon { background-color: rgba(255, 193, 7, 0.1); color: var(--warning); }
+    .stats-favorites .stats-icon { background-color: rgba(244, 67, 54, 0.1); color: var(--error); }
+    .stats-duration .stats-icon { background-color: rgba(0, 150, 136, 0.1); color: #009688; }
+    .stats-last-played .stats-icon { background-color: rgba(33, 150, 243, 0.1); color: #2196F3; }
+
+    @keyframes countUp {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .animate-count {
+        animation: countUp 0.5s ease forwards;
+    }
+
+    .music-header {
+        background: linear-gradient(145deg, var(--primary-light), var(--primary));
+        color: white;
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+    }
+
+    .music-header h1 {
+        margin: 0;
+        font-size: 2.5rem;
+        font-weight: 700;
+    }
+
+    .music-header p {
+        margin: 0;
+        opacity: 0.9;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="music-header">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1>{{ music.title }}</h1>
+                <p class="mb-0">Track Statistics</p>
+            </div>
+            <div class="col-md-4 text-md-end">
+                <a href="{% url 'music_detail' music.id %}" class="btn btn-outline-light">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Track
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="p-4 rounded bg-white shadow-sm h-100 stats-card stats-plays" data-value="{{ music.statistics.total_plays|default:'0' }}">
+                <div class="stats-icon">
+                    <i class="fas fa-play-circle"></i>
+                </div>
+                <div class="text-muted small mb-1">Total Plays</div>
+                <div class="h3 mb-0 stats-value">0</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="p-4 rounded bg-white shadow-sm h-100 stats-card stats-listeners" data-value="{{ music.statistics.unique_listeners|default:'0' }}">
+                <div class="stats-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="text-muted small mb-1">Unique Listeners</div>
+                <div class="h3 mb-0 stats-value">0</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="p-4 rounded bg-white shadow-sm h-100 stats-card stats-rating">
+                <div class="stats-icon">
+                    <i class="fas fa-star"></i>
+                </div>
+                <div class="text-muted small mb-1">Average Rating</div>
+                <div class="h3 mb-0 stats-value">
+                    {% if music.statistics.average_rating > 0 %}
+                        <span class="rating-value">{{ music.statistics.average_rating|floatformat:1 }}</span>
+                        <small class="text-warning">★</small>
+                    {% else %}
+                        <span class="text-muted">No ratings</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="p-4 rounded bg-white shadow-sm h-100 stats-card stats-favorites" data-value="{{ music.statistics.total_favorites|default:'0' }}">
+                <div class="stats-icon">
+                    <i class="fas fa-heart"></i>
+                </div>
+                <div class="text-muted small mb-1">Total Favorites</div>
+                <div class="h3 mb-0 stats-value">0</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="p-4 rounded bg-white shadow-sm h-100 stats-card stats-duration">
+                <div class="stats-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="text-muted small mb-1">Total Time Played</div>
+                <div class="h3 mb-0 stats-value">{{ music.statistics.total_duration_played|default:"0:00:00" }}</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="p-4 rounded bg-white shadow-sm h-100 stats-card stats-last-played">
+                <div class="stats-icon">
+                    <i class="fas fa-history"></i>
+                </div>
+                <div class="text-muted small mb-1">Last Played</div>
+                <div class="h3 mb-0 stats-value">
+                    {% if music.statistics.last_played %}
+                        {{ music.statistics.last_played|date:"M d, Y" }}
+                    {% else %}
+                        <span class="text-muted">Never</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Fonction pour animer les compteurs
+    function animateValue(element, start, end, duration) {
+        if (start === end) return;
+        const range = end - start;
+        const increment = range / (duration / 16);
+        let current = start;
+        const timer = setInterval(() => {
+            current += increment;
+            if ((increment > 0 && current >= end) || (increment < 0 && current <= end)) {
+                clearInterval(timer);
+                element.textContent = end;
+            } else {
+                element.textContent = Math.round(current);
+            }
+        }, 16);
+    }
+
+    // Animation des cartes de statistiques
+    const statsCards = document.querySelectorAll('.stats-card');
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const card = entry.target;
+                card.classList.add('animate');
+
+                // Animer les compteurs numériques
+                const value = card.dataset.value;
+                if (value) {
+                    const valueDisplay = card.querySelector('.stats-value');
+                    animateValue(valueDisplay, 0, parseInt(value), 1000);
+                }
+
+                // Animer la note moyenne si elle existe
+                const ratingValue = card.querySelector('.rating-value');
+                if (ratingValue) {
+                    const finalValue = parseFloat(ratingValue.textContent);
+                    animateValue(ratingValue, 0, finalValue, 1000);
+                }
+
+                observer.unobserve(card);
+            }
+        });
+    }, {
+        threshold: 0.1
+    });
+
+    statsCards.forEach(card => observer.observe(card));
+
+    // Effet de survol amélioré
+    statsCards.forEach(card => {
+        card.addEventListener('mouseenter', () => {
+            const icon = card.querySelector('.stats-icon');
+            icon.style.transform = 'scale(1.1) rotate(5deg)';
+        });
+
+        card.addEventListener('mouseleave', () => {
+            const icon = card.querySelector('.stats-icon');
+            icon.style.transform = 'scale(1) rotate(0deg)';
+        });
+    });
+});
+</script>
+{% endblock %}

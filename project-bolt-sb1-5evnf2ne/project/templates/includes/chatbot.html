@@ -1,0 +1,156 @@
+{% load static %}
+<!-- Bouton flottant du chatbot -->
+<button id="chatbot-button" onclick="toggleChatbot()" class="btn btn-primary rounded-circle shadow">
+    <i class="fas fa-comment"></i>
+</button>
+
+<!-- Conteneur du chatbot -->
+<div id="chatbot-container" class="position-fixed bottom-0 end-0">
+    <div class="card shadow">
+        <div class="card-header d-flex justify-content-between align-items-center bg-primary text-white">
+            <h5 class="mb-0">Assistant Music</h5>
+            <button id="chatbot-close" onclick="toggleChatbot()" class="btn-close btn-close-white"></button>
+        </div>
+        <div id="chat-messages" class="card-body p-3" style="height: 400px; overflow-y: auto;">
+            <!-- Messages seront ajoutés ici -->
+        </div>
+        <div class="card-footer bg-white border-top-0 p-3">
+            <div class="input-group">
+                <input type="text" id="chat-input" class="form-control rounded" placeholder="Type your message...">
+                <button id="chat-send" class="btn btn-primary" onclick="sendMessage()">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Styles du chatbot -->
+<style>
+    #chatbot-button {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background-color: var(--primary);
+        color: white;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        transition: all 0.3s ease;
+        z-index: 1000;
+    }
+
+    #chatbot-button:hover {
+        transform: scale(1.1);
+        background-color: var(--primary-dark);
+    }
+
+    #chatbot-container {
+        display: none;
+        width: 350px;
+        margin-bottom: 20px;
+        margin-right: 20px;
+        z-index: 1000;
+    }
+
+    .message {
+        margin: 10px 0;
+        padding: 10px;
+        border-radius: 10px;
+        max-width: 80%;
+    }
+
+    .user-message {
+        background-color: #e3f2fd;
+        margin-left: auto;
+    }
+
+    .bot-message {
+        background-color: #f5f5f5;
+    }
+
+    #chat-input {
+        padding: 10px;
+        border: 1px solid #dee2e6;
+        border-radius: 20px;
+        outline: none;
+    }
+
+    #chat-send {
+        padding: 10px 20px;
+        border-radius: 20px;
+    }
+</style>
+
+<!-- Scripts du chatbot -->
+<script>
+    // Fonction pour ouvrir/fermer le chatbot
+    function toggleChatbot() {
+        const chatbotContainer = document.getElementById('chatbot-container');
+        const chatbotButton = document.getElementById('chatbot-button');
+        
+        if (chatbotContainer.style.display === 'none' || chatbotContainer.style.display === '') {
+            chatbotContainer.style.display = 'block';
+            chatbotButton.style.display = 'none';
+        } else {
+            chatbotContainer.style.display = 'none';
+            chatbotButton.style.display = 'block';
+        }
+    }
+
+    // Fonction pour ajouter un message
+    function addMessage(message, isUser) {
+        const messagesDiv = document.getElementById('chat-messages');
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${isUser ? 'user-message' : 'bot-message'}`;
+        messageDiv.innerHTML = `<p>${message}</p>`;
+        messagesDiv.appendChild(messageDiv);
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+
+    // Fonction pour envoyer un message
+    function sendMessage() {
+        const input = document.getElementById('chat-input');
+        const message = input.value.trim();
+        
+        if (!message) return;
+        
+        addMessage(message, true);
+        input.value = '';
+        
+        // Envoyer la requête au serveur
+        fetch('/chatbot/get_response/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            },
+            body: JSON.stringify({ message: message })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.response) {
+                addMessage(data.response, false);
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    // Ajouter un écouteur pour la touche Entrée
+    document.getElementById('chat-input').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            sendMessage();
+        }
+    });
+
+    // Ajouter un message de bienvenue
+    document.addEventListener('DOMContentLoaded', function() {
+        addMessage("Bonjour ! Je suis votre assistant musical. Comment puis-je vous aider aujourd'hui ?", false);
+    });
+</script>

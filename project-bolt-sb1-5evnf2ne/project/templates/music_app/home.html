@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+
+{% block title %}Mziktak - Your Music Platform{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Hero Section -->
+    <div class="row mb-5 py-5 align-items-center">
+        <div class="col-md-6 fade-in">
+            <h1 class="display-4 fw-bold mb-3">Discover, Create & Share Music</h1>
+            <p class="lead mb-4">Mziktak is your ultimate platform to manage music, create personalized playlists, and discover new artists.</p>
+            <div class="d-flex gap-3">
+                {% if not user.is_authenticated %}
+                <a href="{% url 'register' %}" class="btn btn-primary btn-lg">Get Started</a>
+                <a href="{% url 'login' %}" class="btn btn-outline-primary btn-lg">Login</a>
+                {% else %}
+                <a href="{% url 'dashboard' %}" class="btn btn-primary btn-lg">My Dashboard</a>
+                <a href="{% url 'music_list' %}" class="btn btn-outline-primary btn-lg">Explore Music</a>
+                {% endif %}
+            </div>
+        </div>
+        <div class="col-md-6 mt-4 mt-md-0 text-center">
+            <img src="https://images.pexels.com/photos/3756766/pexels-photo-3756766.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" alt="Music Hero Image" class="img-fluid rounded-3 shadow" style="max-height: 400px; object-fit: cover;">
+        </div>
+    </div>
+
+    <!-- Recent Music Section -->
+    <section class="mb-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="mb-0">Recently Added</h2>
+            <a href="{% url 'music_list' %}" class="btn btn-outline-primary">View All</a>
+        </div>
+        
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-5 g-4">
+            {% for music in recent_music %}
+            <div class="col">
+                <div class="card h-100 music-card">
+                    <img src="{{ music.cover_image.url }}" class="card-img-top" alt="{{ music.title }}">
+                    <div class="card-body">
+                        <h5 class="music-title">{{ music.title }}</h5>
+                        <p class="music-artist">{{ music.artist.full_name }}</p>
+                        <p class="badge bg-secondary">{{ music.get_genre_display }}</p>
+                    </div>
+                    <div class="card-footer bg-white border-0">
+                        <a href="{% url 'music_detail' music.id %}" class="btn btn-sm btn-primary w-100">
+                            <i class="fas fa-play me-1"></i> Listen
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12">
+                <div class="alert alert-info">No music available yet. Check back soon!</div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- Featured Playlist Section -->
+    {% if default_playlist %}
+    <section class="mb-5">
+        <h2 class="mb-4">Featured Playlist</h2>
+        <div class="card">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 mb-3 mb-md-0">
+                        <div class="position-relative">
+                            <img src="https://images.pexels.com/photos/1626481/pexels-photo-1626481.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" alt="Playlist Cover" class="img-fluid rounded" style="height: 200px; width: 100%; object-fit: cover;">
+                            <div class="position-absolute top-50 start-50 translate-middle">
+                                <a href="{% url 'playlist_detail' default_playlist.id %}" class="btn btn-lg btn-primary rounded-circle">
+                                    <i class="fas fa-play"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <h3>{{ default_playlist.name }}</h3>
+                        <p class="text-muted">Created by: {{ default_playlist.creator.username }}</p>
+                        <p><i class="fas fa-clock me-2"></i>{{ default_playlist.total_duration }}</p>
+                        <p><i class="fas fa-music me-2"></i>{{ default_playlist.music.count }} songs</p>
+                        <a href="{% url 'playlist_detail' default_playlist.id %}" class="btn btn-outline-primary">View Playlist</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- Features Section -->
+    <section class="mb-5">
+        <h2 class="text-center mb-5">Why Choose Mziktak?</h2>
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+            <div class="col">
+                <div class="card h-100 text-center p-4">
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <i class="fas fa-upload fa-3x text-primary"></i>
+                        </div>
+                        <h4>Upload Your Music</h4>
+                        <p>Share your creations with the world. Upload, manage, and track your music portfolio.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card h-100 text-center p-4">
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <i class="fas fa-headphones fa-3x text-primary"></i>
+                        </div>
+                        <h4>Create Playlists</h4>
+                        <p>Organize your favorite songs into personalized playlists. Share with friends or keep for yourself.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card h-100 text-center p-4">
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <i class="fas fa-download fa-3x text-primary"></i>
+                        </div>
+                        <h4>Download Favorites</h4>
+                        <p>Download your favorite tracks to enjoy offline, anytime and anywhere.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Call to Action -->
+    {% if not user.is_authenticated %}
+    <section class="text-center p-5 mb-5 bg-primary text-white rounded-3">
+        <h2 class="mb-3">Ready to start your musical journey?</h2>
+        <p class="lead mb-4">Join thousands of artists and music lovers on Mziktak today.</p>
+        <a href="{% url 'register' %}" class="btn btn-lg btn-accent">Sign Up Now</a>
+    </section>
+    {% endif %}
+</div>
+{% endblock %}

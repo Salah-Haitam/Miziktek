@@ -1,0 +1,34 @@
+.rating {
+    display: inline-flex;
+    flex-direction: row-reverse;
+    gap: 0.3rem;
+    --star-color: #ffd700;
+}
+
+.rating input {
+    display: none;
+}
+
+.rating label {
+    font-size: 2rem;
+    color: #ddd;
+    cursor: pointer;
+    transition: color 0.2s ease-in-out;
+}
+
+.rating input:checked ~ label {
+    color: var(--star-color);
+}
+
+.rating label:hover,
+.rating label:hover ~ label {
+    color: var(--star-color);
+}
+
+.rating input:checked + label:hover,
+.rating input:checked + label:hover ~ label,
+.rating input:checked ~ label:hover,
+.rating input:checked ~ label:hover ~ label {
+    color: var(--star-color);
+    filter: brightness(1.1);
+}
